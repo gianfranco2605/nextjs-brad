@@ -10,6 +10,51 @@ function isAlphaNumeric(x) {
   return alphaNumericRegex.test(x);
 }
 
+export const login = async function (prevState, formData) {
+  const failObject = {
+    success: false,
+    message: "Invalid username / password",
+  };
+  const ourUser = {
+    username: formData.get("username"),
+    password: formData.get("password"),
+  };
+
+  if (typeof ourUser.username !== "string") ourUser.username = "";
+  if (typeof ourUser.password !== "string") ourUser.password = "";
+
+  const collection = await getCollection("users");
+  const user = await collection.findOne({ username: ourUser.username });
+
+  if (!user) {
+    return failObject;
+  }
+
+  const matchOrNot = bcrypt.compareSync(ourUser.password, user.password);
+
+  if (!matchOrNot) {
+    return failObject;
+  }
+
+  const ourTokenValue = jwt.sign(
+    {
+      skyColor: "blue",
+      userId: user._id,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+    },
+    process.env.JWTSECRET
+  );
+
+  cookies().set("ourapp", ourTokenValue, {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: 60 * 60 * 24,
+    sercure: true,
+  });
+
+  redirect("/");
+};
+
 export const logout = async function () {
   cookies().delete("ourapp");
   redirect("/");
@@ -45,6 +90,17 @@ export const register = async function (prevState, formData) {
   if (!errors.password && ourUser.password.length === 0) {
     errors.password = "You must provide a password";
   }
+
+  //see if our user exist
+  const userCollection = await getCollection("users");
+  const usernameInQuestion = await userCollection.findOne({
+    username: ourUser.username,
+  });
+
+  if (usernameInQuestion) {
+    errors.username = "That username is already in use ";
+  }
+
   if (!errors.password && ourUser.password.length < 3) {
     errors.password = "Password must be at least 3 characters long";
   }
@@ -64,8 +120,6 @@ export const register = async function (prevState, formData) {
   const salt = bcrypt.genSaltSync(10);
 
   ourUser.password = bcrypt.hashSync(ourUser.password, salt);
-
-  const userCollections = await getCollection("users");
 
   const newUser = await userCollections.insertOne(ourUser);
 
