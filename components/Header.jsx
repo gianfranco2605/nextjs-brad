@@ -27,23 +27,30 @@ const Header = async () => {
           </div>
           <div className="flex-none">
             <ul className="m-5 menu menu-horizontal px-1">
-              {!user && (
-                <li className="m-5">
-                  <Link href="/login">Log In</Link>
-                </li>
-              )}
               {user && (
-                <li className="mr-5">
-                  <form action={logout} className="btn btn-neutral">
-                    <button>Log Out</button>
-                  </form>
+                <>
+                  <li className="mr-3">
+                    <Link
+                      href="/create-haiku"
+                      className="uppercase btn btn-primary"
+                    >
+                      Create Haiku
+                    </Link>
+                  </li>
+                  <li className="mr-5">
+                    <form action={logout} className="btn btn-neutral">
+                      <button className=" uppercase">Log Out</button>
+                    </form>
+                  </li>
+                </>
+              )}
+              {!user && (
+                <li className="m-5 btn btn-neutral">
+                  <Link className=" uppercase" href="/login">
+                    Log In
+                  </Link>
                 </li>
               )}
-              <li>
-                <Link className="btn btn-primary" href="/map">
-                  Map
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
