@@ -2,6 +2,7 @@
 import { redirect } from "next/navigation";
 import { getUserFromCookie } from "../lib/getUser";
 import { ObjectId } from "mongodb";
+import { getCollection } from "../lib/db";
 
 function isAlphaNumericWithBasics(text) {
   const regex = /^[a-zA-Z0-9 .,]*$/;
@@ -18,9 +19,9 @@ async function sharedHaikuLogic(formData, user) {
     author: ObjectId.createFromHexString(user.userId),
   };
 
-  if (typeof ourHaiku.line1 != string) ourHaiku.line1 = "";
-  if (typeof ourHaiku.line2 != string) ourHaiku.line2 = "";
-  if (typeof ourHaiku.line3 != string) ourHaiku.line3 = "";
+  if (typeof ourHaiku.line1 != "string") ourHaiku.line1 = "";
+  if (typeof ourHaiku.line2 != "string") ourHaiku.line2 = "";
+  if (typeof ourHaiku.line3 != "string") ourHaiku.line3 = "";
 
   ourHaiku.line1 = ourHaiku.line1.replace(/(\r\n|\n|\r)/g, " ");
   ourHaiku.line2 = ourHaiku.line2.replace(/(\r\n|\n|\r)/g, " ");
@@ -42,11 +43,11 @@ async function sharedHaikuLogic(formData, user) {
   if (ourHaiku.line1.length > 25)
     errors.line3 = "Too many syllables, must be 5";
 
-  if (isAlphaNumericWithBasics(ourHaiku.line1))
+  if (!isAlphaNumericWithBasics(ourHaiku.line1))
     errors.line1 = "No special characters allowed";
-  if (isAlphaNumericWithBasics(ourHaiku.line2))
+  if (!isAlphaNumericWithBasics(ourHaiku.line2))
     errors.line2 = "No special characters allowed";
-  if (isAlphaNumericWithBasics(ourHaiku.line3))
+  if (!isAlphaNumericWithBasics(ourHaiku.line3))
     errors.line3 = "No special characters allowed";
 
   if (ourHaiku.line1.length == 0) errors.line1 = "This field is required";
@@ -73,4 +74,7 @@ export const createHaiku = async function (prevState, formData) {
   }
 
   //save in db
+  const haikusCollection = await getCollection("haikus");
+  const newHaiku = await haikusCollection.insertOne(results.ourHaiku);
+  return redirect("/");
 };
