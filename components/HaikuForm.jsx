@@ -1,10 +1,19 @@
 "use client";
 import { useFormState } from "react-dom";
-import { createHaiku } from "../actions/haikuController";
+import { createHaiku, editHaiku } from "../actions/haikuController";
 
-export default function HaikuForm() {
+export default function HaikuForm(props) {
+  let actualAction;
+
+  if (props.action == "create") {
+    actualAction = createHaiku;
+  }
+
+  if (props.action == "edit") {
+    actualAction = editHaiku;
+  }
   //variables
-  const [formState, formAction] = useFormState(createHaiku, {});
+  const [formState, formAction] = useFormState(actualAction, {});
   return (
     <>
       <form action={formAction} className="max-w-xs mx-auto m-10">
@@ -90,6 +99,11 @@ export default function HaikuForm() {
           )}
         </div>
 
+        <input
+          type="hidden"
+          name="haikuId"
+          defaultValue={props.haiku?._id.toString()}
+        />
         <button className="btn btn-outline btn-accent">Submit</button>
       </form>
     </>

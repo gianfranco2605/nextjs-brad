@@ -78,3 +78,22 @@ export const createHaiku = async function (prevState, formData) {
   const newHaiku = await haikusCollection.insertOne(results.ourHaiku);
   return redirect("/");
 };
+
+export const editHaiku = async function (prevState, formData) {
+  const user = await getUserFromCookie();
+
+  if (!user) {
+    return redirect("/");
+  }
+
+  const results = await sharedHaikuLogic(formData, user);
+
+  if (results.errors.line1 || results.errors.line2 || results.errors.line3) {
+    return { errors: results.errors };
+  }
+
+  //save in db
+  const haikusCollection = await getCollection("haikus");
+
+  return redirect("/");
+};

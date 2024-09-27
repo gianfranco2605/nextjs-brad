@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getCollection } from "../lib/db";
 import { ObjectId } from "mongodb";
 
@@ -27,6 +28,7 @@ export default async function Dashboard(props) {
             <br />
             {haiku.line3}
             <br />
+            <Link href={`/edit-haiku/${haiku._id.toString()}`}>Edit</Link>
             <hr />
           </div>
         );
