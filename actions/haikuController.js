@@ -94,6 +94,23 @@ export const editHaiku = async function (prevState, formData) {
 
   //save in db
   const haikusCollection = await getCollection("haikus");
+  let haikuId = formData.get("haikuId");
+  if (typeof haikuId != "string") haikuId = "";
+
+  //make sure you are the owner of the post
+
+  const haikuQuestion = await haikusCollection.findOne({
+    _id: ObjectId.createFromHexString(haikuId),
+  });
+
+  if (haikuQuestion.author.toString() !== user.userId) {
+    return redirect("/");
+  }
+
+  await haikusCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(haikuId) },
+    { $set: results.ourHaiku }
+  );
 
   return redirect("/");
 };
