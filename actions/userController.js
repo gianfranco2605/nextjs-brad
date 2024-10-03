@@ -121,7 +121,7 @@ export const register = async function (prevState, formData) {
 
   ourUser.password = bcrypt.hashSync(ourUser.password, salt);
 
-  const newUser = await userCollections.insertOne(ourUser);
+  const newUser = await userCollection.insertOne(ourUser);
 
   const userId = newUser.insertedId.toString();
 

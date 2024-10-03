@@ -79,6 +79,33 @@ export const createHaiku = async function (prevState, formData) {
   return redirect("/");
 };
 
+// Delete haiku
+export const deleteHaiku = async function (formData) {
+  const user = await getUserFromCookie();
+
+  if (!user) {
+    return redirect("/");
+  }
+
+  const haikusCollection = await getCollection("haikus");
+  let haikuId = formData.get("id");
+  if (typeof haikuId != "string") haikuId = "";
+
+  const haikuQuestion = await haikusCollection.findOne({
+    _id: ObjectId.createFromHexString(haikuId),
+  });
+
+  if (haikuQuestion.author.toString() !== user.userId) {
+    return redirect("/");
+  }
+
+  await haikusCollection.deleteOne({
+    _id: ObjectId.createFromHexString(haikuId),
+  });
+
+  return redirect("/");
+};
+
 export const editHaiku = async function (prevState, formData) {
   const user = await getUserFromCookie();
 
@@ -98,7 +125,6 @@ export const editHaiku = async function (prevState, formData) {
   if (typeof haikuId != "string") haikuId = "";
 
   //make sure you are the owner of the post
-
   const haikuQuestion = await haikusCollection.findOne({
     _id: ObjectId.createFromHexString(haikuId),
   });
