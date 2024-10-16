@@ -103,16 +103,30 @@ export default function HaikuForm(props) {
           )}
         </div>
         <div className="mb-4">
-          <CldUploadWidget signatureEndpoint="/widget-signature">
+          <CldUploadWidget
+          onSuccess={(result, {widget}) => {
+            console.log(result?.info);
+            
+          }} 
+          onQueuesEnd={(result, {widget}) => {
+            widget.close()
+          }} signatureEndpoint="/widget-signature">
             {({ open }) => {
+              function handleClick(e) {
+                e.preventDefault()
+                open()
+              }
               return (
-                <button className="btn btn-secondary" onClick={() => open()}>
+                <button className="btn btn-secondary" onClick={handleClick}>
                   Upload an Image
                 </button>
               );
             }}
           </CldUploadWidget>
         </div>
+        <input type="hidden" name="public_id" value={public_id} />
+        <input type="hidden" name="version" value={version} />
+        <input type="hidden" name="signature" value={signature} />
         <input
           type="hidden"
           name="haikuId"
